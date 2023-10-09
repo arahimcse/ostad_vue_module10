@@ -1,5 +1,5 @@
 <script>
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, computed, watch } from 'vue'
 import axios from 'axios'
 
 export default {
@@ -7,11 +7,11 @@ export default {
     // Create reactive data
     const products = ref({})
     const isLoading = ref(true)
+    const selected = ref(10)
 
-    // Method
-    async function getProducts() {
+    watch(selected, async()=>{
       try {
-        const response = await axios.get(`https://dummyjson.com/products?limit=50`)
+        const response = await axios.get(`https://dummyjson.com/products?limit=${selected.value}`)
         if (response.status == 200) {
           products.value = response.data.products
         } else {
@@ -20,17 +20,32 @@ export default {
       } catch (error) {
         isLoading.value = false
       }
-    }
+      console.log(selected.value)
+    },{ immediate: true })
+    // Method
+    // async function getProducts() {
+    //   try {
+    //     const response = await axios.get(`https://dummyjson.com/products?limit=50`)
+    //     if (response.status == 200) {
+    //       products.value = response.data.products
+    //     } else {
+    //       isLoading.value = false;
+    //     }
+    //   } catch (error) {
+    //     isLoading.value = false
+    //   }
+    // }
 
-    // Lifecycle hook
-    onBeforeMount(() => {
-      getProducts();
-    })
+    // // Lifecycle hook
+    // onBeforeMount(() => {
+    //   getProducts();
+    // })
 
     // Return data and methods to be used in the template
     return {
       products,
       isLoading,
+      selected
     };
   },
 };
@@ -39,6 +54,22 @@ export default {
   <template v-if="isLoading">
     <div class="flex flex-row w-full justify-center items-center bg-gray-300">
       <h1 class="text-2xl py-[20px] ">Welcome to our Latest Products</h1>
+    </div>
+    <div>Selected: {{ selected }}</div>
+    <div class="w-[98%] flex flex-row justify-between py-2">
+      <p>
+        
+
+<select v-model="selected">
+  <option value="10">10</option>
+  <option value="25">25</option>
+  <option value="50">50</option>
+  <option value="100">100</option>
+</select>
+      </p>
+      <p>
+        search item
+      </p>
     </div>
     <article class="w-[24.50%] bg-gray-500 text-white my-[5px] mr-[0.125%] border-yellow-200 border-[2px]"
       v-for="product in products " :key="product.id">
